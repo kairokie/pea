@@ -1,27 +1,51 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using System.IO;
 
 public class LineReader : MonoBehaviour
 {
-    public FileInfo theSourceFile = null;
-    protected StreamReader reader = null;
-    protected string text = " "; // assigned to allow first line to be read below
+    string[] allLinesArray;
+    string[] notesArray;
+    string myFilePath, fileName;
+    public List<string> listOfNotes = new();
 
     void Start()
     {
-        theSourceFile = new FileInfo("smFile.sm");
-        reader = theSourceFile.OpenText();
+        fileName = "smFile.sm";
+        myFilePath = Application.dataPath + "/" + fileName;
+        //change file path of myFile when building :) - https://www.youtube.com/watch?v=N02o3EaNkXk
+        ReadFromFile();
     }
 
     void Update()
     {
-        if (text != null)
+       
+    }
+
+    public void ReadFromFile()
+    {
+        allLinesArray = File.ReadAllLines(myFilePath);
+        foreach (string line in allLinesArray)
         {
-            text = reader.ReadLine();
-            //Console.WriteLine(text);
-            print(text);
+            int lineLength = line.Length;
+            if (!line.Contains(":") && lineLength == 6)
+            {
+                listOfNotes.Add(line);
+                print(line);
+            }
+            /*if (line.Contains("Song Title"))
+            {
+                set bpm as line thingy
+            }*/
         }
+        /*
+        foreach (string line in owoArray)
+        {
+            print(line);lineLength == 6 && 
+        }
+        */
+
     }
 }
