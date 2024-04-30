@@ -390,6 +390,7 @@
 -analyzer:"C:/Users/tarae/Documents/Game Design/UNITY/2023.2.9f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 -analyzer:"C:/Users/tarae/Documents/Game Design/UNITY/2023.2.9f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll"
 "Assets/ParseTextFile.cs"
+"Assets/PlayerControllerFeedback.cs"
 -langversion:9.0
 
 /deterministic
