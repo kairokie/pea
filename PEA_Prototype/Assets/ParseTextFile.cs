@@ -8,8 +8,8 @@ using Unity.VisualScripting;
 public class LineReader : MonoBehaviour
 {
     // Reading .sm file
-    public string myFilePath, fileName;
-    public List<string> listOfNotes = new(); 
+    public string myFilePathSM, myFilePathMP3, fileName;
+    List<string> listOfNotes = new(); 
     public float noteSpeed = 6.5f;
     public AudioSource music;
 
@@ -34,15 +34,20 @@ public class LineReader : MonoBehaviour
     public int beatLine = 0;
 
     bool songStarted = false;
+    bool firstNote = true;
 
     void Start()
     {
-        myFilePath = Application.dataPath + "/" + fileName;
+        //Set-up
+        myFilePathSM = Application.dataPath + "/Resources/Music/" + fileName + ".sm";
+        myFilePathMP3 = Application.dataPath + "/Resources/Music/" + fileName + ".mp3";
         //change file path of myFile when building :) - https://www.youtube.com/watch?v=N02o3EaNkXk
 
-        //set-up
+        AudioClip resource = Resources.Load<AudioClip>("Music/" + fileName);
+
+        //Start the level
         ReadFromFile();
-        StartSong();
+        StartSong(resource);
     }
 
     void Update()
@@ -55,16 +60,33 @@ public class LineReader : MonoBehaviour
 
             if (songposition > lastBeat + beatDuration)
             {
-                lastBeat += beatDuration;
+                lastBeat += beatDuration; 
                 SpawnNote(beatLine);
-                beatLine += 1;
+                StartCoroutine("BeatUpdate");
             }
+        }
+    }
+
+    IEnumerator BeatUpdate()
+    {
+        if (firstNote)
+        {
+            yield return new WaitForSeconds(0f);
+            firstNote = false;
+
+            //float startDelay = (7.2f / 6.5f) / beatDuration;
+            //beatLine += Convert.ToInt32(startDelay);
+        }
+        else
+        {
+
+            beatLine += 1;
         }
     }
 
     public void ReadFromFile()
     {
-        allLinesArray = File.ReadAllLines(myFilePath);
+        allLinesArray = File.ReadAllLines(myFilePathSM);
         foreach (string line in allLinesArray)
         {
             // Take all lines with notes
@@ -115,70 +137,69 @@ public class LineReader : MonoBehaviour
         }
     }
 
-    /*IEnumerator StartSong()
+    void StartSong(AudioClip resource)
     {
-        StartCoroutine(SpawnNotes());
-        //yield return new WaitForSeconds(7.2f / 6.5f);
-        music.Play();
-        dspTimeSong = (float)AudioSettings.dspTime;
-    }*/
-
-    void StartSong()
-    {
-        music.Play();
+        music.PlayOneShot(resource);
         dspTimeSong = (float)AudioSettings.dspTime;
         songStarted = true;
-        beatLine += 3;
     }
 
     void SpawnNote(int _beatLine)
     {
-        string beat = listOfNotes[_beatLine];
-        int notesOnLine = beat.Split('1').Length;
-
-        if (notesOnLine == 2)
+        if(_beatLine < listOfNotes.Count)
         {
-            notePrefab = singleNotePrefab;
+            string beat = listOfNotes[_beatLine];
+            int notesOnLine = beat.Split('1').Length;
+
+            if (notesOnLine == 2)
+            {
+                notePrefab = singleNotePrefab;
+            }
+            else
+            {
+                notePrefab = doubleNotePrefab;
+            }
+
+            print(beat);
+            if (beat[2].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 4.3f, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", -1);
+            }
+            if (beat[1].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 1, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", -1);
+            }
+            if (beat[0].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, -2.3f, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", -1);
+            }
+            if (beat[3].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 4.3f, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", 1);
+            }
+            if (beat[4].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 1, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", 1);
+            }
+            if (beat[5].ToString() == "1")
+            {
+                GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, -2.3f, 0), Quaternion.identity);
+                Variables.Object(noteInstance).Set("Direction_Right", 1);
+            }
+            else if (beat == "000000")
+            {
+                print("no spawn");
+            }
         }
         else
         {
-            notePrefab = doubleNotePrefab;
+            print("End of song");
         }
-
-        print(beat);
-        if (beat[2].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 4.3f, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", -1);
-        }
-        if (beat[1].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 1, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", -1);
-        }
-        if (beat[0].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, -2.3f, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", -1);
-        }
-        if (beat[3].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 4.3f, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", 1);
-        }
-        if (beat[4].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, 1, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", 1);
-        }
-        if (beat[5].ToString() == "1")
-        {
-            GameObject noteInstance = Instantiate(notePrefab, new Vector3(0, -2.3f, 0), Quaternion.identity);
-            Variables.Object(noteInstance).Set("Direction_Right", 1);
-        }
-        else if (beat == "000000")
-        {
-            print("no spawn");
-        }
+        
     }
 }

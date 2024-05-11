@@ -19,9 +19,9 @@ public class PlayerControllerFeedback : MonoBehaviour
         
     }
 
-    void NoteHit(string test)
+    void NoteHit(string coroutineName)
     {
-        StartCoroutine(NoteHitCoroutine(test));
+        StartCoroutine(NoteHitCoroutine(coroutineName));
     }
 
     public IEnumerator NoteHitCoroutine(string precision)
