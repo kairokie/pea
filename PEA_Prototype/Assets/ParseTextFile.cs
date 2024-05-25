@@ -11,6 +11,7 @@ public class LineReader : MonoBehaviour
     public string myFilePathSM, myFilePathMP3, fileName;
     List<string> listOfNotes = new(); 
     public float noteSpeed = 6.5f;
+    private float noteTravelTime;
     public AudioSource music;
 
     string[] allLinesArray;
@@ -36,6 +37,8 @@ public class LineReader : MonoBehaviour
     bool songStarted = false;
     bool firstNote = true;
 
+    private IEnumerator syncBeat;
+
     void Start()
     {
         //Set-up
@@ -44,6 +47,8 @@ public class LineReader : MonoBehaviour
         //change file path of myFile when building :) - https://www.youtube.com/watch?v=N02o3EaNkXk
 
         AudioClip resource = Resources.Load<AudioClip>("Music/" + fileName);
+
+        noteTravelTime = (7.2f/6.5f);
 
         //Start the level
         ReadFromFile();
@@ -56,18 +61,28 @@ public class LineReader : MonoBehaviour
 
         if(songStarted)
         {
-            songposition = (AudioSettings.dspTime - dspTimeSong) - offset;
+            if(offset>0)
+            {
+                songposition = (AudioSettings.dspTime - dspTimeSong + offset + noteTravelTime);
+            }
+            else
+            {
+                songposition = (AudioSettings.dspTime - dspTimeSong + offset + noteTravelTime);
+            }
+            
+            // - offset;
 
             if (songposition > lastBeat + beatDuration)
             {
                 lastBeat += beatDuration; 
                 SpawnNote(beatLine);
-                StartCoroutine("BeatUpdate");
+                //StartCoroutine("BeatUpdate");
+                beatLine += 1;
             }
         }
     }
 
-    IEnumerator BeatUpdate()
+    /*IEnumerator BeatUpdate()
     {
         if (firstNote)
         {
@@ -82,7 +97,7 @@ public class LineReader : MonoBehaviour
 
             beatLine += 1;
         }
-    }
+    }*/
 
     public void ReadFromFile()
     {
@@ -103,14 +118,16 @@ public class LineReader : MonoBehaviour
                 offsetStr = offsetStr.Replace("#OFFSET:", string.Empty);
                 offsetStr = offsetStr.Replace(";", string.Empty);
                 float.TryParse(offsetStr, out float tempOffset);
-                
-                if(tempOffset<0)
-                {
-                    tempOffset = -tempOffset;
-                }
-
 
                 offset = tempOffset;
+
+                /*if (tempOffset<0)
+                {
+                    tempOffset = -tempOffset;
+                }*/
+
+
+                //offset = tempOffset;
                 print("Offset: " + offset);
             }
 
@@ -139,9 +156,14 @@ public class LineReader : MonoBehaviour
 
     void StartSong(AudioClip resource)
     {
-        music.PlayOneShot(resource);
+
         dspTimeSong = (float)AudioSettings.dspTime;
+        music.PlayOneShot(resource);
         songStarted = true;
+
+        //this line!!! idek man, it's close i swear
+        //float startDelay = (7.2f / 6.5f)/ beatDuration;
+        //beatLine += Convert.ToInt32(startDelay);
     }
 
     void SpawnNote(int _beatLine)
