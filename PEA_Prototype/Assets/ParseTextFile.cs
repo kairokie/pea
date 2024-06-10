@@ -61,15 +61,8 @@ public class LineReader : MonoBehaviour
 
         if(songStarted)
         {
-            if(offset>0)
-            {
-                songposition = (AudioSettings.dspTime - dspTimeSong + offset + noteTravelTime);
-            }
-            else
-            {
-                songposition = (AudioSettings.dspTime - dspTimeSong + offset + noteTravelTime);
-            }
-            
+            songposition = (AudioSettings.dspTime - dspTimeSong + offset + noteTravelTime);
+          
             // - offset;
 
             if (songposition > lastBeat + beatDuration)
